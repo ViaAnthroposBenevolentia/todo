@@ -1,10 +1,21 @@
 // src/App.js
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import {
+  Container,
+  TextField,
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  IconButton,
+  Checkbox,
+} from "@mui/material";
+import { Delete, Edit } from "@mui/icons-material";
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 function App() {
-  const API_URL = process.env.REACT_APP_API_URL;
-
   const [todos, setTodos] = useState([]);
   const [formData, setFormData] = useState({
     title: "",
@@ -48,7 +59,9 @@ function App() {
   };
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this todo?");
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this todo?"
+    );
     if (!confirmDelete) return;
     try {
       await axios.delete(`${API_URL}/todos/${id}/`);
@@ -83,162 +96,88 @@ function App() {
   };
 
   return (
-    <div className="App" style={styles.container}>
-      <h1>ToDo App</h1>
+    <Container maxWidth="sm" style={{ marginTop: "50px" }}>
+      <h1>Todo App</h1>
 
-      {/* Form to add or edit a todo */}
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <input
-          type="text"
+      <form onSubmit={handleSubmit}>
+        <TextField
+          label="Title"
           name="title"
-          placeholder="Title"
           value={formData.title}
           onChange={handleChange}
           required
-          style={styles.input}
+          fullWidth
+          margin="normal"
         />
-        <input
-          type="text"
+        <TextField
+          label="Description"
           name="description"
-          placeholder="Description"
           value={formData.description}
           onChange={handleChange}
-          style={styles.input}
+          fullWidth
+          margin="normal"
         />
-        <button type="submit" style={styles.button}>
-          {editTodo ? "Update ToDo" : "Add ToDo"}
-        </button>
+        <Button
+          variant="contained"
+          color="primary"
+          type="submit"
+          style={{ marginRight: "10px" }}
+        >
+          {editTodo ? "Update Todo" : "Add Todo"}
+        </Button>
         {editTodo && (
-          <button
-            type="button"
+          <Button
+            variant="outlined"
+            color="secondary"
             onClick={handleCancelEdit}
-            style={styles.cancelButton}
           >
             Cancel
-          </button>
+          </Button>
         )}
       </form>
 
-      {/* List of todos */}
-      <ul style={styles.list}>
+      <List>
         {todos.map((todo) => (
-          <li key={todo.id} style={styles.listItem}>
-            <div>
-              <h2
-                style={{
-                  textDecoration: todo.completed ? "line-through" : "none",
-                }}
-                onClick={() => toggleCompletion(todo)}
-              >
-                {todo.title}
-              </h2>
-              <p>{todo.description}</p>
-            </div>
-            <div>
-              <button
-                onClick={() => handleEdit(todo)}
-                style={styles.editButton}
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(todo.id)}
-                style={styles.deleteButton}
-              >
-                Delete
-              </button>
-              <button
-                onClick={() => toggleCompletion(todo)}
-                style={todo.completed ? styles.ToDoCompleted : styles.ToDoNotCompleted}
-              >
-                {todo.completed ? "Not Done" : "✔ "}
-              </button>
-            </div>
-          </li>
+          <ListItem
+            key={todo.id}
+            secondaryAction={
+              <>
+                <IconButton
+                  edge="end"
+                  aria-label="edit"
+                  onClick={() => handleEdit(todo)}
+                >
+                  <Edit />
+                </IconButton>
+                <IconButton
+                  edge="end"
+                  aria-label="delete"
+                  onClick={() => handleDelete(todo.id)}
+                >
+                  <Delete />
+                </IconButton>
+              </>
+            }
+          >
+            <Checkbox
+              edge="start"
+              checked={todo.completed}
+              tabIndex={-1}
+              disableRipple
+              onChange={() => toggleCompletion(todo)}
+            />
+            <ListItemText
+              primary={todo.title}
+              secondary={todo.description}
+              style={{
+                textDecoration: todo.completed ? "line-through" : "none",
+              }}
+            />
+          </ListItem>
         ))}
-      </ul>
-    </div>
+      </List>
+    </Container>
   );
 }
-
-// Updated styles
-const styles = {
-  container: {
-    maxWidth: "600px",
-    margin: "0 auto",
-    padding: "20px",
-    fontFamily: "Arial, sans-serif",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    marginBottom: "20px",
-  },
-  input: {
-    padding: "10px",
-    margin: "5px 0",
-    fontSize: "16px",
-  },
-  button: {
-    padding: "10px",
-    fontSize: "16px",
-    cursor: "pointer",
-    marginTop: "10px",
-  },
-  cancelButton: {
-    padding: "10px",
-    fontSize: "16px",
-    cursor: "pointer",
-    marginTop: "10px",
-    backgroundColor: "#ccc",
-    border: "none",
-  },
-  list: {
-    listStyleType: "none",
-    padding: "0",
-  },
-  listItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "10px",
-    borderBottom: "1px solid #ccc",
-  },
-  deleteButton: {
-    padding: "5px 10px",
-    backgroundColor: "#ff4d4d",
-    color: "#fff",
-    border: "none",
-    borderRadius: "3px",
-    cursor: "pointer",
-    marginLeft: "5px",
-  },
-  editButton: {
-    padding: "5px 10px",
-    backgroundColor: "#4d79ff",
-    color: "#fff",
-    border: "none",
-    borderRadius: "3px",
-    cursor: "pointer",
-  },
-  ToDoCompleted: {
-    padding: "5px 10px",
-    backgroundColor: "green",
-    color: "#fff",
-    border: "none",
-    borderRadius: "3px",
-    cursor: "pointer",
-    marginLeft: "5px",
-  },
-  ToDoNotCompleted: {
-    padding: "5px 10px",
-    backgroundColor: "green",
-    color: "#fff",
-    border: "none",
-    borderRadius: "3px",
-    cursor: "pointer",
-    marginLeft: "5px",
-  },
-};
 
 export default App;
